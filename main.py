@@ -142,7 +142,7 @@ def main():
     if ITER_LOG > 0:
         video = Video(out_pth)
 
-    glctx = dr.RasterizeGLContext()
+    glctx = dr.RasterizeCudaContext()
 
     cameras = torch.utils.data.DataLoader(
         CameraBatch(

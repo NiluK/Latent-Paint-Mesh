@@ -24,6 +24,13 @@ def load_obj(filename, device, clear_ks=True, mtl_override=None):
             val = [float(v) for v in line.split()[1:]]
             texcoords.append([val[0], 1.0 - val[1]])
 
+    
+    vertices = torch.tensor(vertices, dtype=torch.float32, device=device)
+    max = torch.max(vertices)
+    vertices = torch.div(vertices, max)
+    vertices = torch.mul(vertices, 0.35)
+    max2 = torch.max(vertices)
+
     # load faces
     faces, tfaces = [], []
     for line in lines:
@@ -36,18 +43,16 @@ def load_obj(filename, device, clear_ks=True, mtl_override=None):
             nv = len(vs)
             vv = vs[0].split('/')
             v0 = int(vv[0]) - 1
-            t0 = int(vv[1]) - 1 if vv[1] != "" else -1
+            t0 = int(vv[1]) - 1 if len(vv) > 1 and vv[1] != "" else -1
             for i in range(nv - 2): # Triangulate polygons
                 vv = vs[i + 1].split('/')
                 v1 = int(vv[0]) - 1
-                t1 = int(vv[1]) - 1 if vv[1] != "" else -1
+                t1 = int(vv[1]) - 1 if len(vv) > 1 and vv[1] != "" else -1
                 vv = vs[i + 2].split('/')
                 v2 = int(vv[0]) - 1
-                t2 = int(vv[1]) - 1 if vv[1] != "" else -1
+                t2 = int(vv[1]) - 1 if len(vv) > 1 and vv[1] != "" else -1
                 faces.append([v0, v1, v2])
                 tfaces.append([t0, t1, t2])
-
-    vertices = torch.tensor(vertices, dtype=torch.float32, device=device)
     texcoords = torch.tensor(texcoords, dtype=torch.float32, device=device) if len(texcoords) > 0 else None
 
     faces = torch.tensor(faces, dtype=torch.int32, device=device)
